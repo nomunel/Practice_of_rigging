@@ -1,0 +1,64 @@
+//hook up a controller to match the joint's rotation
+//Usage: Select the controller and then the joint 
+
+
+global proc OffsetController()
+{
+
+//find 0 controller and 1 joint  (0 driver / 1 driven)
+string $sel[] = `ls -sl`;
+
+//are they using this correctly?
+//did they select 2 things?
+
+
+if (size($sel) == 2 )
+{
+    print "\n\n\n2 Objects selected\n\n\n";
+
+//ok - did they select 2 correct things?
+    if (`nodeType $sel[1]` == "joint" && `nodeType $sel[0]` == "transform") 
+    {  
+    print "\n\n\nOK - these are the right things selected. Creating offset now \n\n\n "; 
+    
+        //get controller name and create offset name
+        string $grp = ($sel[0] + "_os_GRP " );
+        
+        //Create empty group node, name it
+        select -cl;
+        group -em; xform -os -piv 0 0 0;
+        rename $grp;
+        
+        //move group node to joint with point constraint
+        //delete point constraint
+        select $sel[1];
+        select -add $grp;
+        string $temp2Delete[] = `pointConstraint -offset 0 0 0 -weight 1`;
+        delete $temp2Delete;
+        
+        //get rotational numbers from joint with orient constraint
+        //delete orient constraint
+        select $sel[1];
+        select -add $grp;
+        string $temp2Delete[] = `orientConstraint -offset 0 0 0 -weight 1`;
+        delete $temp2Delete;
+        
+        //make controller child of group node
+        parent $sel[0] $grp;
+        
+        //freeze transformations on the controler
+        select $sel[0];
+        makeIdentity -apply true -t 1 -r 1 -s 1 -n 0;
+    }//end if they picked the correct 2 controllers
+    else
+    print "\n\n\n You have two objects selected, but not the right two objects: Controller and Joint\n\n\n";
+} //end if they picked 2 objects
+
+else
+    print "\n\n\n Gosh, you need to select two objects: Controller and Joint\n\n\n";
+//done
+
+print ("\n\n\nDONE\n\n\n");
+
+
+}

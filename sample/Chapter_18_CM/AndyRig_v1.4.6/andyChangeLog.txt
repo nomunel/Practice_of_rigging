@@ -1,0 +1,107 @@
+Andy Rig v1.4.6
+Released 04/14/08
+
+*For BEST RESULTS PLEASE USE THE SMOOTH ATTRIBUTE BEFORE RENDERING, SET RESOLUTION OF VIEWPORT TEXTURES TO FAST (Window->Settings/Preferences->Preferences->Display), USE REFERENCING (File->Create Reference), CHARACTER SETS (included), AND DO NOT SHOW JOINTS IN THE VIEWPORT (Show->Joints)*
+
+Note: Dynamic parenting and IK/FK snapping accessible from Rt. Click menus, character customizations on the world node
+
+Sorry nothing fancy on this one, just a small fix to enable rt click menus in maya 2008
+
+
+Andy Rig v1.4.5
+Released 09/03/07
+
+New Features:
+added curves connected to the Pole vectors to help indicate which arm/leg they affect
+
+______________________________________________
+Andy Rig v1.4
+Released 07/21/07
+
+New Features:
+Animatable Pivots on feet, root, and neck accessable from Rt. Click Menus
+Maya 8.5 compatibility - enables Rt. Click menus
+Squash and Stretch "Adjust" attributes on hips and shoulder controls
+Cup attribute added to fingers
+IK Mid control enabled on the spine
+
+______________________________________________
+Andy Rig v1.3
+Released 04/30/07
+
+*For BEST RESULTS PLEASE SET RESOLUTION OF VIEWPORT TEXTURES TO FAST (Window->Settings/Preferences->Preferences->Display), USE REFERENCING (File->Create Reference), CHARACTER SETS (included), AND DO NOT SHOW JOINTS IN THE VIEWPORT (Show->Joints)*
+
+Note: Dynamic parenting and IK/FK snapping accessible from Rt. Click menus, character customizations on the world node
+
+New Features:
+Some corrective shapes on shoulders and biceps
+Two new hairstyles - Man and Woman
+New Texture - grVest (girlVest.jpg) made by john doublestein with help from ying-chi chen
+Skin Shader with specular maps - compatible with maya software rendering
+Gimbal helper controls on hands and feet
+
+________________________________________________
+Andy Rig v1.2
+Updated 04/16/07
+
+Fixed:
+Incompatibility problem with dynamic parenting scripts in JTDriggingTools - required name changes in the Rt. Click Menus
+Rig scalability problem with the new squash and stretch shapes
+
+________________________________________________
+Andy Rig v1.2
+Released 04/14/07
+
+New Features:
+Added eye controler to face visibility slider switch
+Added visibility switch for body controls
+Fixed long save times due to light linking file corruption
+Fixed some *more* deformation issues when squashing the character spine
+
+Requested Features: 
+Palm Lifter (a la Jason Schliefer)
+
+______________________________________________
+Andy Rig v1.1
+Released 03/30/07
+
+New Features:
+Fixed some deformation issues when squashing the character spine
+
+Requested Features: 
+Palm Lifter (a la Jason Schliefer)
+
+______________________________________________
+Andy Rig v1.0
+Released 03/21/07
+
+New Features:
+Textures - two boy and two girl textures
+Proxy Model
+boy and girl hairstyle with animateable ponytail
+Facial Setup
+Character Sets
+
+Requested Features: 
+Palm Lifter (a la Jason Schliefer)
+
+
+____________________
+Andy Rig (Beta) v0.1
+Released 03/04/07
+
+coming soon:
+
+Character set
+Textures!
+Proxy model for real-time playback
+Switchable hairstyles with animatable pony-tail
+Blendshape and deformation fixes
+Facial animation Setup (a la Jason Osipa)
+Palm lifter (a la Jason Schliefer)
+
+Andy Rig created by:
+John Doublestein
+jdoublestein@gmail.com
+www.johndoublestein.com
+Released free of charge, use at your own risk

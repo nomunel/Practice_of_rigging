@@ -1,0 +1,222 @@
+string $window = `window -title "Make It Stretch"`;
+columnLayout;
+string $axisToUseW = ` checkBoxGrp
+-numberOfCheckBoxes 3
+-cal 1 "left"
+-cw 1 100
+-cw 2 35
+-cw 3 35 
+-label "Scale Axis"
+-labelArray3 "X" "Y" "Z"`;
+gridLayout -nc 2 -cwh 100 50;
+button -l "start object >>" -c "textField -edit -text \`ls -sl\` $startobjW;";
+string $startobjW = `textField startText` ;
+button -l "end object >>" -c "textField -edit -text \`ls -sl\` $endobjW;";
+string $endobjW = `textField endText`;
+button -l "scale object(s) >>" -c "whatchagot($scaleObjsW)";
+string $scaleObjsW = `textScrollList -h 200 -w 240 -ams false scaleObjects`;
+button -l "Make it Stretchy" -c "doStretchy($startobjW,$endobjW ,$scaleObjsW, $axisToUseW )" ;
+showWindow $window;
+
+/////////////////////////little procedure
+
+global proc whatchagot ( string $inScaleTS)
+{
+    textScrollList -edit -ra $inScaleTS; 
+    string $tempSel[] = `ls -sl`;
+    for ($selected in $tempSel)
+    {
+        textScrollList -edit -a $selected $inScaleTS;
+    }//end for loop
+}
+
+/////////////////////////main procedure
+global proc doStretchy(string $inStartObj, string $inEndObj, string $inScaleTs, string $inAxisTs)
+{
+    ///////// important variables
+    float $restLength;  // we'll set  these later on
+    string $startz[];
+    string $endz[];
+
+    ///////// important variables set from the GUI
+    string $startT = `textField -query -text $inStartObj`;
+    string $endT = `textField -query -text $inEndObj`;
+    string $scaleT[] = `textScrollList -query -ai $inScaleTs`;
+    int $numToScale = `textScrollList -query -ni $inScaleTs`;
+    string $AxisX = `checkBoxGrp -query -v1 $inAxisTs`;
+    string $AxisY = `checkBoxGrp -query -v2 $inAxisTs`;
+    string $AxisZ = `checkBoxGrp -query -v3 $inAxisTs`;
+
+///////Testing for valid inputs///////////////////////////////////////
+    if ( ( $startT == "") || ($endT == "") || ($numToScale == 0) )
+    {
+        print " Please select items to scale ";
+    } 
+    else if ( ($AxisX ==0) && ($AxisY == 0) && ($AxisZ == 0) )
+    {
+        print "Please select a scale axis ";
+    } else
+    
+/////////Begin the actual stretchy code///////////////////////////////////////   
+    { 
+   
+       //is the first thing a joint? - replace with a hidden locator
+       if (`nodeType $startT` == "joint")
+       {
+               //$startT = "joint1"; //TESTING      //TESTING //TESTING //TESTING //TESTING //TESTING //TESTING //TESTING //TESTING 
+               string $startLoc[] = `spaceLocator -p 0 0 0`;
+               select -cl; select -r $startT; select -add $startLoc;
+               string $tempCon[] = `pointConstraint -offset 0 0 0 -weight 1`;
+               setAttr ($startLoc[0] + ".visibility") 0;
+              
+               $startz =  $startLoc;        //The locator is the new start point
+              
+       }
+       else
+       {
+           print "Was NOT a joint\n";    //TEST
+           print $startT; //TEST//TEST//TEST//TEST//TEST//TEST//TEST//TEST//TEST//TEST
+           $startz[0] = $startT;        //get the locator or control object
+       }//end looking for a joint for start
+       
+       //is the second thing an IK Handle? - replace with a hidden locator at the end
+         if (`nodeType $endT` == "ikHandle")
+         {   
+             // $endT = "ikHandle1";  //TESTING //TESTING //TESTING //TESTING //TESTING //TESTING //TESTING             
+             string $endLoc[] = `spaceLocator -p 0 0 0`;
+             select -cl; select -r $endT; select -add $endLoc;
+             string $tempCon[] = `pointConstraint -offset 0 0 0 -weight 1`;
+             setAttr ($endLoc[0] + ".visibility") 0;
+            
+             $endz = $endLoc;        //The locator is the new start point//make a child of the IK Handle
+            
+            //Make it the $end
+         }
+         else
+         {
+            print "\n";        //TEST
+            print "Was NOT an IK handle\n";    
+            print $endT;//TEST//TEST//TEST//TEST//TEST//TEST//TEST//TEST         
+            $endz[0] = $endT;            //get End locator
+         }//end looking for an Ik 'andle for end
+         
+         
+        //DO NOT FREEZE Transformation
+
+
+/////////Create a distance node so we know how far apart start and end are  /////////
+
+         $disNode = `createNode distanceBetween`;    //Create a Distance Between 
+          //Connect Start locator to DistanceBetween.point1
+          connectAttr -f ($endz[0] + ".translate") ($disNode + ".point1");
+         //Connect End locator to DistanceBetween.point2
+          connectAttr -f ($startz[0] + ".translate") ($disNode + ".point2");
+        
+/////////Need to get the right rest length///////////////////////////////////////    
+////////if End point is an ik handle///////////////////////////////////////////
+
+         if (`nodeType $endT` == "ikHandle")
+        {//begin if fancy ikHandle
+            print "This is an IK Handle\n";  //this is an IK handle - getting fancy here
+//make a temporary duplicate (else we get number creep in joint rotation)
+            string $tempTop = `ikHandle -query -startJoint $endT`;  //what's the root joint of the limb?
+            select $tempTop;        
+            string $tempJoints[] = `duplicate -name "TEMPJ" -rc $tempTop`;  //duplicate that limb - with unique names!
+            int $howManyJoints = (size($tempJoints)-1);    //How many joints were there? subtract for the useless effector with it
+            delete $tempJoints[$howManyJoints];  //delete that useless effector -- remember arrays start the count at 0
+            select -clear;
+            select  ($tempJoints[0] + ".rotatePivot"); //select top joint
+            select -add ($tempJoints[$howManyJoints-1] + ".rotatePivot"); //select bottom joint --remember arrays start the count at 0
+            string $tempikHandle[]= `ikHandle -sol ikSplineSolver`;  //create an IK solver
+            string $tempcurveInfo = `arclen -ch on $tempikHandle[2]`;//temporarily add 'arclen - ch on curve
+            $restLength = `getAttr ($tempcurveInfo + ".arcLength")`;//curveInfo1.ArcLength is the rest length
+            delete $tempJoints; //delete the temp duplciate joint
+            delete $tempikHandle[2];//delete the curve   
+            print "TESTING\n";
+            print $restLength;
+            print "TESTING\n";
+          
+            //jiggle the handle --- really --- else it does a refresh thing//
+            move -r 0.0001 0.0001 0.0001 $endT;
+            undo;  //put the handle back
+            
+        }//end if fancy ikHandle
+        else  
+        {//not fancy - must be fk
+           
+             $restLength = getAttr ($disNode + ".distance");
+        }//end not fancy
+
+
+
+ 
+print "TESTING\n";
+print $restLength;
+print "TESTING\n";
+
+
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+//////////////the rest of the stretchy code////////////////////////////////////////////////////////////////////
+
+    /////////////////////////////////////////
+    //Create a Conditional node
+    $condNode = `createNode condition`;
+    //First term is the rest length, type it in
+    setAttr ($condNode + ".firstTerm") $restLength;
+    //Color if True is therest length, type it in
+    setAttr ($condNode + ".colorIfTrueR") $restLength; 
+    //Connect the DistanceBetween1.distance to the Second Term
+    connectAttr -f ($disNode + ".distance") ($condNode + ".secondTerm") ;
+    //Connect the DistanceBetween1.distance to the Color if False
+    connectAttr -f ($disNode + ".distance") ($condNode + ".colorIfFalseR") ;
+    //Set the Operation to be Greater or Equal
+    setAttr ($condNode + ".operation") 3;
+    
+    /////////////////////////////////////////
+    //Create a Multiply Divide node
+    $muldNode = `createNode multiplyDivide`;
+    //Set the operation to be Divide
+    setAttr ($muldNode + ".operation") 2;
+    //Connect the Condition1.outColorR to go into the Input1 X of the multiply divide node
+    connectAttr ($condNode +".outColor.outColorR") ($muldNode + ".input1.input1X");
+    //Type in the rest length into the multiply Divide node’s Input2X value.
+    setAttr ($muldNode + ".input2.input2X") $restLength;
+    
+    ////////////////////////////
+    //Connect the output of the Multiply Divide node to the scale value of the item or items you are wanting to scale.
+    for ($each in $scaleT)
+    {
+        print "TESTING\n";
+        print $each;
+        print "\n";
+        if ($AxisX == 1)
+            { 
+            print ("Connecting " + $muldNode + ".output.outputX " + $each + ".scaleX \n");  //TSET
+            connectAttr ($muldNode + ".output.outputX ") ( $each + ".scaleX"); }
+        if ($AxisY == 1)
+            {
+            print ("Connectin Y" + $muldNode + ".output.outputX "+ $each + ".scaleY \n");//TSET
+            connectAttr ($muldNode + ".output.outputX ") ( $each + ".scaleY"); }
+        if ($AxisZ == 1)
+            {
+            print ("Connectin Y" + $muldNode + ".output.outputX " + $each + ".scaleZ\n");//TSET
+            connectAttr ($muldNode + ".output.outputX ") ( $each + ".scaleZ"); }        
+     }//end for loop
+    
+    
+    
+//create an scale adjustment for the animator
+//string $endT = "ikHandle1"; //tTEMP
+//float $restLength = 4.5;//tTEMP
+            addAttr -ln "ScaleLength" -at double -dv $restLength -maxValue ($restLength +.5) $endT; 
+            setAttr -e-keyable true ($endT + ".ScaleLength");
+            connectAttr ($endT + ".ScaleLength") ($condNode + ".firstTerm"); 
+            connectAttr ($endT + ".ScaleLength") ($condNode + ".colorIfTrueR"); 
+            connectAttr ($endT + ".ScaleLength") ($muldNode + ".input2.input2X");
+            addAttr -ln "DefaultScale" -at double -dv $restLength $endT; 
+            setAttr -e -keyable true  -lock true ($endT + ".DefaultScale");
+print "done";
+    }//end stretchy code with valid inputs
+
+} //end procedure
+////////////////////////////

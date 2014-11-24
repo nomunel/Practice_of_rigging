@@ -1,0 +1,46 @@
+/* This file downloaded from Highend3d.com
+''  
+''  Highend3d.com File Information:
+''  
+''    Script Name: The Andy Rig
+''    Author:  
+''    Last Updated: Apr 14, 2008
+''    Update/Change this file at:
+''    http://Highend3d.com/maya/downloads/character_rigs/4697.html
+''  
+''  Please do not alter any information above this line
+''  it is generated dynamically by Highend3d.com and will
+''  be changed automatically on any updates.
+*/
+workspace -ot "scene" "scenes";
+workspace -fr "IGES" "data";
+workspace -fr "DXFexport" "data";
+workspace -fr "OBJexport" "data";
+workspace -fr "mel" "mel";
+workspace -fr "particles" "particles";
+workspace -fr "RIBexport" "data";
+workspace -fr "RIB" "data";
+workspace -fr "DXF_FBX" "DXF_FBX";
+workspace -fr "aliasWire" "data";
+workspace -fr "Adobe(R) Illustrator(R)" "data";
+workspace -fr "move" "data";
+workspace -fr "Fbx" "Fbx";
+workspace -fr "DXF" "data";
+workspace -fr "EPS" "data";
+workspace -fr "animExport" "data";
+workspace -fr "diskCache" "data";
+workspace -fr "OBJ" "data";
+workspace -fr "IGESexport" "data";
+workspace -fr "animImport" "data";
+workspace -rt "clips" "clips";
+workspace -rt "3dPaintTextures" "3dPaintTextures";
+workspace -rt "depth" "renderData/depth";
+workspace -rt "iprImages" "renderData/iprImages";
+workspace -rt "mentalray" "renderData/mentalray";
+workspace -rt "lights" "renderData/shaders";
+workspace -rt "textures" "textures";
+workspace -rt "particles" "particles";
+workspace -rt "audio" "sound";
+workspace -rt "sourceImages" "sourceimages";
+workspace -rt "renderScenes" "renderScenes";
+workspace -rt "images" "images";
